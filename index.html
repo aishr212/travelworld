@@ -1,0 +1,160 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+    <title>Vacation Form</title> 
+    <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+    
+    <!--Placeholder for Segment Snippet --> 
+<script>
+  !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware"];analytics.factory=function(e){return function(){var t=Array.prototype.slice.call(arguments);t.unshift(e);analytics.push(t);return analytics}};for(var e=0;e<analytics.methods.length;e++){var key=analytics.methods[e];analytics[key]=analytics.factory(key)}analytics.load=function(key,e){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.src="https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n);analytics._loadOptions=e};analytics._writeKey="Jh0VIwuU2f2kNGWROwpzmn0o1nAgn2Cf";;analytics.SNIPPET_VERSION="4.15.3";
+  <!--analytics.load("DeJ233udIFdpDDT7wc4Seknvk0BjVr6N");-->
+  analytics.page();
+  }}();
+    
+    
+  analytics.ready(function(){
+  hbspt.forms.create({
+    portalId: '',
+    formId: '',
+    css: '',
+    cssRequired: ''
+  });
+})  
+</script>
+
+
+
+ <script
+  src="https://unpkg.com/@segment/consent-manager@1.1.1/standalone/consent-manager.js"
+  integrity="sha256-cptjdzM9JCyAzOliNVMI+8U60l1MgdGbgop1MFfYoiU="
+  crossorigin="anonymous"
+  defer
+  data-container="#target-container"
+  data-writeKey="Jh0VIwuU2f2kNGWROwpzmn0o1nAgn2Cf"
+  data-bannerContent="We use cookies (and other similar technologies) to collect data to improve your experience on our site."
+  data-preferencesDialogTitle="Website Data Collection Preferences"
+  data-preferencesDialogContent="We use data collected by cookies and JavaScript libraries to improve your browsing experience, analyze site traffic, deliver personalized advertisements, and increase the overall performance of our site."
+  data-cancelDialogTitle="Are you sure you want to cancel?"
+  data-cancelDialogContent="Your preferences have not been saved. By continuing to use our website, you՚re agreeing to our Website Data Collection Policy."
+ ></script>
+    
+
+    
+    
+ <!-- Google Analytics 
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-111-1', 'auto');
+ga('send', 'pageview');
+</script>
+ End Google Analytics -->
+
+</head> 
+<body>
+
+    <script>
+            //just adding a constructor to the String object
+            // will be using it to create a userID from email
+            String.prototype.hashCode = function() {
+                var hash = 0;
+                if (this.length == 0) {
+                    return hash;
+                }
+                for (var i = 0; i < this.length; i++) {
+                    var char = this.charCodeAt(i);
+                    hash = ((hash<<5)-hash)+char;
+                    hash = hash & hash; // Convert to 32bit integer
+                }
+                return hash;
+            }
+    </script>
+    
+    
+<h1>What is your favorite place to travel?</h1> 
+    
+<p>I am building a directory of the sweetest travel destinations.</p>  
+    
+<form name="travel" onsubmit="identify(event)">
+     What is your favorite travel destination?
+    <input name="destination" required="" size="81" type="text" value="Bali"/> 
+    <br><br><br> 
+    Any recommendations (cool things to do, places to visit or restaurants to eat)? 
+    <br><br> 
+    <textarea cols="81" name="details" required="" rows="10">go scuba diving</textarea> 
+    <br><br> 
+    Name: <input name="fullname" required="" size="75" type="text" value="Darth Vader"/> 
+    <br><br> 
+    Email: <input name="email" required="" size="75" type="email" value="vader@deathstar.io"/> 
+    <br><br>
+    Segment userId: <input name="userId" required="" size="75" type="text" value="dv44444"/>
+    <br><br>
+    
+    
+    <input name="submit" type="submit" value="submit"/>
+</form> 
+    <!--Placeholder for identify and track script -->
+    <script type="text/javascript">
+      function identify(e){
+        e.preventDefault();
+        var form = e.target;
+        var email = form["email"].value;
+        var fullname = form["fullname"].value;
+        var destination = form["destination"].value;
+        var details = form["details"].value;
+        var user = {
+            email: email, 
+            name: fullname, 
+            destination: destination, 
+            details: details
+        };
+        var myUserId = form["userId"].value;
+        //var myAnonId = form["anonymousId"].value;
+          
+        analytics.identify(myUserId, {
+            email: email, 
+            name: fullname
+        });
+          
+        //analytics.track(event, [properties], [options], [callback]);
+        analytics.track('Form Submitted', { 
+            label: 'client side',
+            user,
+            form_name: 'Nice Destinations'
+                            
+            // { context: { ip: "0.0.0.0" }}, //with this we would override the value for ip in context               
+            //function() { window.location.href = "";}
+            });         
+        //analytics.alias('999999');
+      }
+    </script>
+    
+    <div id="target-container"></div>
+    
+    <br/><br/>
+    
+    
+    <!-- button to reset a.js -->
+    <button type="button" onclick="analytics.reset();">analytics.reset();</button>
+
+    <!-- button to launch the consent manager -->
+    <button type="button" onclick="openConsentManager()">Open Consent Manager</button>
+
+    <!-- link to a second page to test referrer -->
+    <a href="https://yannzo.github.io/second_page.html">Link to a secod page</a>
+    
+    
+</body> 
+</html>
+
+
+
+
+
+
+
+
+
