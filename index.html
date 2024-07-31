@@ -38,8 +38,157 @@
   data-cancelDialogContent="Your preferences have not been saved. By continuing to use our website, you՚re agreeing to our Website Data Collection Policy."
  ></script>
     
-
+<script>
+class product_list_enricher_plugin {
+  constructor() {
+    this.name = 'Product List Enricher Plugin';
+    // before, enrichment, destination, after
+    this.type = 'enrichment';
+    this.version = '1';
+  }
     
+  isLoaded() {
+    return true;
+  }
+   
+  async load(ctx, analytics) {
+    console.log("Product List Plugin Loaded")
+    return;
+  }
+    
+  async track(ctx) {
+
+    // HANDLE PRODUCT LIST VIEWED EVENT
+    if (ctx.event.event == "Product List Viewed") {
+      localStorage.setItem("latest_list_id", ctx.event.properties.list_id);
+      localStorage.setItem("latest_list_name", ctx.event.properties.item_list_name);
+    }
+
+    // HANDLE PRODUCT CLICKED
+    if (ctx.event.event == "Product Clicked") {
+      localStorage.setItem("latest_product_id", ctx.event.properties.product_id);
+      localStorage.setItem("latest_plp_grid_images", ctx.event.properties.plp_grid_images);
+      localStorage.setItem("latest_mix_and_match", ctx.event.properties.mix_and_match);
+      localStorage.setItem("latest_product_set_id", ctx.event.properties.product_set_id);
+      localStorage.setItem("latest_shop_the_look_id", ctx.event.properties.shop_the_look_id);
+    }
+
+    // HANDLE PRODUCT VIEWED EVENT
+    if (ctx.event.event == "Product Viewed") {
+      if (ctx.event.properties.product_id == localStorage.getItem("latest_product_id")) {
+        console.log("matching products")
+      } else {
+        localStorage.setItem("latest_plp_grid_images", ctx.event.properties.plp_grid_images);
+        localStorage.setItem("latest_mix_and_match", ctx.event.properties.mix_and_match);
+        localStorage.setItem("latest_product_set_id", ctx.event.properties.product_set_id);
+        localStorage.setItem("latest_shop_the_look_id", ctx.event.properties.shop_the_look_id);
+      }
+    }
+
+    // HANDLE PRODUCT ADDED EVENT
+    if (ctx.event.event == "Product Added") {
+      ctx.event.properties.list_id = localStorage.getItem("latest_list_id");
+      ctx.event.properties.item_list_name = localStorage.getItem("latest_list_name");
+      ctx.event.properties.plp_grid_images = localStorage.getItem("latest_plp_grid_images");
+      ctx.event.properties.mix_and_match = localStorage.getItem("latest_mix_and_match");
+      ctx.event.properties.product_set_id = localStorage.getItem("latest_product_set_id");
+      ctx.event.properties.shop_the_look_id = localStorage.getItem("latest_shop_the_look_id");
+
+
+      // define new object for added_products_array localStorage item
+      var added_products_lookup_object = {};
+      added_products_lookup_object.product_id = ctx.event.properties.product_id;
+      added_products_lookup_object.list_id = localStorage.getItem("latest_list_id");
+      added_products_lookup_object.item_list_name = localStorage.getItem("latest_list_name");
+      added_products_lookup_object.plp_grid_images = ctx.event.properties.plp_grid_images;
+      added_products_lookup_object.mix_and_match = ctx.event.properties.mix_and_match;
+      added_products_lookup_object.product_set_id = ctx.event.properties.product_set_id;
+      added_products_lookup_object.shop_the_look_id = ctx.event.properties.shop_the_look_id;
+
+      console.log(added_products_lookup_object);
+
+      if (localStorage.getItem("added_products_lookup") === null) {
+        // define array of objects for product_list_lookup if not present
+        console.log("Creating Lookup Array");
+        var added_products_lookup_array = [];
+
+        // add object to array
+        added_products_lookup_array.push(added_products_lookup_object);
+
+        console.log(added_products_lookup_array);
+
+        // push stringified array to localStorage
+        localStorage.setItem("added_products_lookup", JSON.stringify(added_products_lookup_array));
+      }
+      else {
+        // retrieve existing added_products_lookup localStorage and parse
+        console.log("Updating Lookup Array");
+        var added_products_lookup_current = JSON.parse(localStorage.getItem("added_products_lookup"));
+
+        // add object to array
+        added_products_lookup_array_current.push(added_products_lookup_object);
+        console.log(added_products_lookup_array_current);
+
+        // push stringified array to localStorage
+        localStorage.setItem("added_products_lookup", JSON.stringify(added_products_lookup_array_current));
+      }
+    }
+
+    // HANDLE PRODUCT REMOVED EVENT
+    if (ctx.event.event == "Product Removed") {
+      // retrieve existing added_products_lookup localStorage and parse
+      var added_products_lookup = JSON.parse(localStorage.getItem("added_products_lookup_array"));
+
+      // filter array to remove object based on product_id
+      added_products_lookup_current = added_products_lookup.filter(function( obj ) {
+        return obj.product_id !== ctx.event.properties.product_id;
+      });
+
+      localStorage.setItem("added_products_lookup_array", JSON.stringify(added_products_lookup_current));
+
+    }
+
+    // HANDLE ORDER COMPLETED AND CHECKOUT STARTED EVENT
+    if (ctx.event.event == "Order Completed" || ctx.event.event == "Checkout Started") {
+      console.log("Handling Order Completed and Checkout Started Event");
+      // retrieve existing added_products_lookup localStorage and parse
+      var added_products_lookup = JSON.parse(localStorage.getItem("added_products_lookup"));
+
+      console.log("Products Lookup Array: ")
+      console.log(added_products_lookup);
+
+      // get products array from event
+      var products = ctx.event.properties.products;
+
+      console.log("Products Array: ")
+      console.log(products);
+
+      // merge together based on product_id
+      const mergeById = (a1, a2) =>
+      a1.map(itm => ({
+          ...a2.find((item) => (item.product_id === itm.id) && item),
+          ...itm
+      }));
+
+      let merged_products = mergeById(products, added_products_lookup);
+
+      console.log(merged_products);
+
+
+      // add merged products array of objects to event
+      console.log("Merged Products: ")
+      console.log(merged_products);
+      ctx.event.properties.products = merged_products;
+
+    }
+
+    return ctx;
+  }
+
+}
+
+await window.analytics.register(new product_list_enricher_plugin());
+</script>    
     
  <!-- Google Analytics 
 <script>
