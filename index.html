@@ -22,8 +22,6 @@
 })  
 </script>
 
-
-
  <script
   src="https://unpkg.com/@segment/consent-manager@1.1.1/standalone/consent-manager.js"
   integrity="sha256-cptjdzM9JCyAzOliNVMI+8U60l1MgdGbgop1MFfYoiU="
@@ -38,7 +36,7 @@
   data-cancelDialogContent="Your preferences have not been saved. By continuing to use our website, you՚re agreeing to our Website Data Collection Policy."
  ></script>
     
-<script>
+<script type="text/javascript">
 class product_list_enricher_plugin {
   constructor() {
     this.name = 'Product List Enricher Plugin';
@@ -50,7 +48,7 @@ class product_list_enricher_plugin {
   isLoaded() {
     console.log(`${this.name} isLoaded called`);
     return true;
-  }
+  }  
    
   async load(ctx, analytics) {
     console.log("Product List Plugin Loaded")
