@@ -30,108 +30,168 @@ Copy code
     ></script>
     
     <script>
-      class ProductListEnricherPlugin {
-        constructor() {
-          this.name = 'Product List Enricher Plugin';
-          this.type = 'enrichment';
-          this.version = '1.0.0';
-        }
-        
-        isLoaded() {
-          console.log(`${this.name} isLoaded called`);
-          return true;
-        }
+     class product_list_enricher_plugin {
+  constructor() {
+    this.name = 'Product List Enricher Plugin';
+    this.type = 'enrichment';
+    this.version = '1';
+  }
 
-        async load(ctx, analytics) {
-          console.log("Product List Plugin Loaded");
-        }
+  isLoaded() {
+    return true;
+  }
 
-        async track(ctx) {
-          console.log("Tracking event:", ctx.event.event);
-          
-          // HANDLE PRODUCT LIST VIEWED EVENT
-          if (ctx.event.event === "Product List Viewed") {
-            localStorage.setItem("latest_list_id", ctx.event.properties.list_id);
-            localStorage.setItem("latest_list_name", ctx.event.properties.item_list_name);
-          }
+  async load(ctx, analytics) {
+    console.log("Product List Plugin Loaded");
+    return;
+  }
 
-          // HANDLE PRODUCT CLICKED
-          if (ctx.event.event === "Product Clicked") {
-            localStorage.setItem("latest_product_id", ctx.event.properties.product_id);
-            localStorage.setItem("latest_plp_grid_images", ctx.event.properties.plp_grid_images);
-            localStorage.setItem("latest_mix_and_match", ctx.event.properties.mix_and_match);
-            localStorage.setItem("latest_product_set_id", ctx.event.properties.product_set_id);
-            localStorage.setItem("latest_shop_the_look_id", ctx.event.properties.shop_the_look_id);
-          }
+  async track(ctx) {
+    console.log(`Handling event: ${ctx.event.event}`);
 
-          // HANDLE PRODUCT VIEWED EVENT
-          if (ctx.event.event === "Product Viewed") {
-            if (ctx.event.properties.product_id === localStorage.getItem("latest_product_id")) {
-              console.log("Matching products");
-            } else {
-              localStorage.setItem("latest_plp_grid_images", ctx.event.properties.plp_grid_images);
-              localStorage.setItem("latest_mix_and_match", ctx.event.properties.mix_and_match);
-              localStorage.setItem("latest_product_set_id", ctx.event.properties.product_set_id);
-              localStorage.setItem("latest_shop_the_look_id", ctx.event.properties.shop_the_look_id);
-            }
-          }
+    // HANDLE PRODUCT LIST VIEWED EVENT
+    if (ctx.event.event === "Product List Viewed") {
+      localStorage.setItem("latest_list_id", ctx.event.properties.list_id);
+      localStorage.setItem("latest_list_name", ctx.event.properties.item_list_name);
+      console.log("Product List Viewed: ", ctx.event.properties);
+    }
 
-          // HANDLE PRODUCT ADDED EVENT
-          if (ctx.event.event === "Product Added") {
-            ctx.event.properties.list_id = localStorage.getItem("latest_list_id");
-            ctx.event.properties.item_list_name = localStorage.getItem("latest_list_name");
-            ctx.event.properties.plp_grid_images = localStorage.getItem("latest_plp_grid_images");
-            ctx.event.properties.mix_and_match = localStorage.getItem("latest_mix_and_match");
-            ctx.event.properties.product_set_id = localStorage.getItem("latest_product_set_id");
-            ctx.event.properties.shop_the_look_id = localStorage.getItem("latest_shop_the_look_id");
+    // HANDLE PRODUCT CLICKED
+    if (ctx.event.event === "Product Clicked") {
+      localStorage.setItem("latest_product_id", ctx.event.properties.product_id);
+      localStorage.setItem("latest_plp_grid_images", ctx.event.properties.plp_grid_images);
+      localStorage.setItem("latest_mix_and_match", ctx.event.properties.mix_and_match);
+      localStorage.setItem("latest_product_set_id", ctx.event.properties.product_set_id);
+      localStorage.setItem("latest_shop_the_look_id", ctx.event.properties.shop_the_look_id);
+      console.log("Product Clicked: ", ctx.event.properties);
+    }
 
-            const addedProductsLookupObject = {
-              product_id: ctx.event.properties.product_id,
-              list_id: localStorage.getItem("latest_list_id"),
-              item_list_name: localStorage.getItem("latest_list_name"),
-              plp_grid_images: ctx.event.properties.plp_grid_images,
-              mix_and_match: ctx.event.properties.mix_and_match,
-              product_set_id: ctx.event.properties.product_set_id,
-              shop_the_look_id: ctx.event.properties.shop_the_look_id
-            };
-
-            let addedProductsLookup = JSON.parse(localStorage.getItem("added_products_lookup")) || [];
-            addedProductsLookup.push(addedProductsLookupObject);
-
-            localStorage.setItem("added_products_lookup", JSON.stringify(addedProductsLookup));
-            console.log("Updated products lookup:", addedProductsLookup);
-          }
-
-          // HANDLE PRODUCT REMOVED EVENT
-          if (ctx.event.event === "Product Removed") {
-            let addedProductsLookup = JSON.parse(localStorage.getItem("added_products_lookup")) || [];
-            addedProductsLookup = addedProductsLookup.filter(obj => obj.product_id !== ctx.event.properties.product_id);
-            localStorage.setItem("added_products_lookup", JSON.stringify(addedProductsLookup));
-          }
-
-          // HANDLE ORDER COMPLETED AND CHECKOUT STARTED EVENT
-          if (ctx.event.event === "Order Completed" || ctx.event.event === "Checkout Started") {
-            console.log("Handling Order Completed and Checkout Started Event");
-            const addedProductsLookup = JSON.parse(localStorage.getItem("added_products_lookup")) || [];
-            const products = ctx.event.properties.products;
-
-            const mergeById = (a1, a2) => a1.map(itm => ({
-              ...a2.find(item => item.product_id === itm.id) || {},
-              ...itm
-            }));
-
-            const mergedProducts = mergeById(products, addedProductsLookup);
-            ctx.event.properties.products = mergedProducts;
-          }
-
-          return ctx;
-        }
+    // HANDLE PRODUCT VIEWED EVENT
+    if (ctx.event.event === "Product Viewed") {
+      if (ctx.event.properties.product_id === localStorage.getItem("latest_product_id")) {
+        console.log("Matching products");
+      } else {
+        localStorage.setItem("latest_plp_grid_images", ctx.event.properties.plp_grid_images);
+        localStorage.setItem("latest_mix_and_match", ctx.event.properties.mix_and_match);
+        localStorage.setItem("latest_product_set_id", ctx.event.properties.product_set_id);
+        localStorage.setItem("latest_shop_the_look_id", ctx.event.properties.shop_the_look_id);
       }
 
-      window.analytics.ready(() => {
-        console.log("Analytics ready. Registering Product List Enricher Plugin.");
-        window.analytics.register(new ProductListEnricherPlugin());
-      });
+      // Ensure properties from localStorage are set on the event
+      ctx.event.properties.list_id = localStorage.getItem("latest_list_id");
+      ctx.event.properties.item_list_name = localStorage.getItem("latest_list_name");
+      ctx.event.properties.plp_grid_images = localStorage.getItem("latest_plp_grid_images");
+      ctx.event.properties.mix_and_match = localStorage.getItem("latest_mix_and_match");
+      ctx.event.properties.product_set_id = localStorage.getItem("latest_product_set_id");
+      ctx.event.properties.shop_the_look_id = localStorage.getItem("latest_shop_the_look_id");
+
+      console.log("Product Viewed: ", ctx.event.properties);
+    }
+
+    // HANDLE PRODUCT ADDED EVENT
+    if (ctx.event.event === "Product Added") {
+      ctx.event.properties.list_id = localStorage.getItem("latest_list_id");
+      ctx.event.properties.item_list_name = localStorage.getItem("latest_list_name");
+      ctx.event.properties.plp_grid_images = localStorage.getItem("latest_plp_grid_images");
+      ctx.event.properties.mix_and_match = localStorage.getItem("latest_mix_and_match");
+      ctx.event.properties.product_set_id = localStorage.getItem("latest_product_set_id");
+      ctx.event.properties.shop_the_look_id = localStorage.getItem("latest_shop_the_look_id");
+
+      // Define new object for added_products_array localStorage item
+      const added_products_lookup_object = {
+        product_id: ctx.event.properties.product_id,
+        list_id: localStorage.getItem("latest_list_id"),
+        item_list_name: localStorage.getItem("latest_list_name"),
+        plp_grid_images: ctx.event.properties.plp_grid_images,
+        mix_and_match: ctx.event.properties.mix_and_match,
+        product_set_id: ctx.event.properties.product_set_id,
+        shop_the_look_id: ctx.event.properties.shop_the_look_id
+      };
+
+      console.log("Product Added: ", added_products_lookup_object);
+
+      if (localStorage.getItem("added_products_lookup") === null) {
+        // Define array of objects for product_list_lookup if not present
+        console.log("Creating Lookup Array");
+        const added_products_lookup_array = [];
+
+        // Add object to array
+        added_products_lookup_array.push(added_products_lookup_object);
+
+        console.log("Added Products Lookup Array: ", added_products_lookup_array);
+
+        // Push stringified array to localStorage
+        localStorage.setItem("added_products_lookup", JSON.stringify(added_products_lookup_array));
+      } else {
+        // Retrieve existing added_products_lookup from localStorage and parse
+        console.log("Updating Lookup Array");
+        const added_products_lookup_current = JSON.parse(localStorage.getItem("added_products_lookup"));
+
+        // Add object to existing array
+        added_products_lookup_current.push(added_products_lookup_object);
+
+        console.log("Updated Products Lookup Array: ", added_products_lookup_current);
+
+        // Push stringified updated array to localStorage
+        localStorage.setItem("added_products_lookup", JSON.stringify(added_products_lookup_current));
+      }
+    }
+
+    // HANDLE PRODUCT REMOVED EVENT
+    if (ctx.event.event === "Product Removed") {
+      // Retrieve existing added_products_lookup from localStorage and parse
+      let added_products_lookup = JSON.parse(localStorage.getItem("added_products_lookup"));
+
+      // Filter array to remove object based on product_id
+      added_products_lookup = added_products_lookup.filter(obj => obj.product_id !== ctx.event.properties.product_id);
+
+      localStorage.setItem("added_products_lookup", JSON.stringify(added_products_lookup));
+      console.log("Product Removed: ", ctx.event.properties);
+    }
+
+    // HANDLE ORDER COMPLETED AND CHECKOUT STARTED EVENT
+    if (ctx.event.event === "Order Completed" || ctx.event.event === "Checkout Started") {
+      console.log("Handling Order Completed and Checkout Started Event");
+      // Retrieve existing added_products_lookup from localStorage and parse
+      const added_products_lookup = JSON.parse(localStorage.getItem("added_products_lookup"));
+
+      console.log("Products Lookup Array: ", added_products_lookup);
+
+      // Get products array from event
+      const products = ctx.event.properties.products;
+
+      console.log("Products Array: ", products);
+
+      // Merge together based on product_id
+      const mergeById = (a1, a2) =>
+        a1.map(itm => ({
+          ...a2.find(item => (item.product_id === itm.id) && item),
+          ...itm
+        }));
+
+      let merged_products = mergeById(products, added_products_lookup);
+
+      // Ensure list_id and item_list_name are added to each product in merged_products
+      merged_products = merged_products.map(product => ({
+        ...product,
+        list_id: localStorage.getItem("latest_list_id"),
+        item_list_name: localStorage.getItem("latest_list_name")
+      }));
+
+      console.log("Merged Products: ", merged_products);
+
+      // Add merged products array of objects to event
+      ctx.event.properties.products = merged_products;
+    }
+
+    return ctx;
+  }
+}
+
+// Register the plugin
+window.analytics.ready(() => {
+  window.analytics.register(new product_list_enricher_plugin());
+});
     </script>
 </head>
 <body>
