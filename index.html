@@ -36,7 +36,7 @@
   data-cancelDialogContent="Your preferences have not been saved. By continuing to use our website, you՚re agreeing to our Website Data Collection Policy."
  ></script>
     
-<script type="text/javascript">
+<script>
 class product_list_enricher_plugin {
   constructor() {
     this.name = 'Product List Enricher Plugin';
@@ -186,7 +186,11 @@ class product_list_enricher_plugin {
 
 }
 
-await window.analytics.register(new product_list_enricher_plugin());
+window.analytics.ready(() => {
+            window.analytics.register(new product_list_enricher_plugin());
+        });
+
+//await window.analytics.register(new product_list_enricher_plugin());
 </script>    
     
  <!-- Google Analytics 
