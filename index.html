@@ -13,6 +13,41 @@ Copy code
       analytics.page();
       }}();
     </script>
+
+    <!-- Anonymous test prefex plugin-->
+    <script>
+        class AppendAnonymousIdPlugin {
+            constructor() {
+                this.name = 'Append AnonymousId Plugin';
+                this.type = 'before';
+                this.version = '1';
+            }
+
+            isLoaded() {
+                return true;
+            }
+
+            async load(ctx, analytics) {
+                const originalAnonymousId = analytics.user().anonymousId();
+                if (originalAnonymousId) {
+                    const transformedAnonymousId = originalAnonymousId + "_added_plugin";
+                    analytics.setAnonymousId(transformedAnonymousId);
+                }
+            }
+        }
+
+        // Register the Append AnonymousId Plugin
+        window.analytics.ready(() => {
+            window.analytics.register(new AppendAnonymousIdPlugin());
+        });
+
+        // Example track event
+        function trackEvent() {
+            analytics.track('Plugin Tester Page', {
+                property1: 'value1'
+            });
+        }
+    </script>
     
     <!-- Consent Manager -->
     <script
